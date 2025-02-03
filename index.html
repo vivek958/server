@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Valentine Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+  <style>
+    /* Base styles */
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(45deg, #ffe6f0, #ffb6c1);
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    /* Parallax background */
+    .parallax {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .bg-element {
+      position: absolute;
+      font-size: 24px;
+      animation: float 15s infinite linear;
+      opacity: 0.6;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); }
+      100% { transform: translateY(-100px) rotate(360deg); }
+    }
+    /* Main container */
+    .container {
+      max-width: 600px;
+      width: 90%;
+      margin: 20px;
+      padding: 20px;
+      text-align: center;
+      background: rgba(255,255,255,0.9);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ffb6c1;
+      border-radius: 5px;
+      margin: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ff69b4;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      margin: 10px;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    /* Modal & overlay for confirmation */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      text-align: center;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 900;
+    }
+    /* Loading screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,182,193,0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #ff1493;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Buffering animation (mimicking YouTube) */
+    .buffering-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1250;
+      color: white;
+      font-size: 1.2em;
+    }
+    .buffering-spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    /* Error overlay */
+    .error-text {
+      color: red;
+      font-weight: bold;
+      font-size: 1.5em;
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1200;
+    }
+    /* Success screen */
+    .success-screen {
+      text-align: center;
+      font-size: 1.5em;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      z-index: 1300;
+    }
+    .success-gif {
+      max-width: 200px;
+      margin-top: 20px;
+    }
+    /* Audio toggle control */
+    #audio-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <!-- Parallax background -->
+  <div class="parallax" id="parallax"></div>
+  <!-- (Optional) Confetti container -->
+  <div id="confetti-container"></div>
+  <!-- Initial loading screen -->
+  <div class="loading-screen" id="initial-loading">
+    <div class="spinner"></div>
+  </div>
+  <!-- Main content container -->
+  <div class="container" id="main-content" style="display: none;">
+    <div id="name-input">
+      <h2>Please Enter Your Name</h2>
+      <input type="text" id="name" required />
+      <button onclick="submitName()">Submit</button>
+    </div>
+    <div id="valentine-question" style="display: none;">
+      <h1>Will You Be My Valentine?</h1>
+      <button onclick="answer(true)">Yes</button>
+      <button onclick="answer(false)">No</button>
+    </div>
+  </div>
+  <!-- Audio toggle button -->
+  <div id="audio-controls">
+    <button onclick="toggleMusic()">🔊</button>
+  </div>
+
+  <script>
+    // Instruct the user to interact with the page to enable audio.
+    alert("Hi! Please tap anywhere (or the volume button) to enable audio before continuing.");
+
+    let userName = '';
+    // Global counter for "No" attempts (original + spawned buttons)
+    let noAttempts = -6;
+
+    const parallax = document.getElementById('parallax');
+    const bgElements = ['💖', '🌸', '✨', '💝', '🎀', '💕'];
+    const bgColors = ['#ff69b4', '#ff1493', '#ff69b4', '#ff8da1', '#ffc0cb'];
+
+    // Background music (do not play immediately)
+    let isMusicPlaying = false;
+    const backgroundMusic = new Audio();
+    backgroundMusic.src = "bg.mp3"; // Use a relative path accessible via your server
+    backgroundMusic.loop = true;
+
+    // This flag ensures the audio is only initialized once.
+    let audioInitialized = false;
+    function initAudio() {
+      if (!audioInitialized) {
+        backgroundMusic.play().then(() => {
+          isMusicPlaying = true;
+          console.log("Background music started.");
+        }).catch(err => {
+          console.log("Audio play failed:", err);
+        });
+        audioInitialized = true;
+        // Remove the listener after first interaction.
+        document.body.removeEventListener("click", initAudio);
+      }
+    }
+    // Wait for any user interaction before starting the audio.
+    document.body.addEventListener("click", initAudio);
+
+    // Create parallax background elements
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'bg-element';
+      el.style.left = `${Math.random() * 100}%`;
+      el.style.top = `${Math.random() * 100}%`;
+      el.style.animationDelay = `${Math.random() * 15}s`;
+      el.style.color = bgColors[Math.floor(Math.random() * bgColors.length)];
+      el.innerText = bgElements[Math.floor(Math.random() * bgElements.length)];
+      parallax.appendChild(el);
+    }
+
+    // Hide initial loading screen after 2 seconds and show main content.
+    setTimeout(() => {
+      document.getElementById('initial-loading').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+    }, 2000);
+
+    // Handle name submission and confirmation.
+    function submitName() {
+      const nameInput = document.getElementById('name');
+      if (nameInput.value.trim() === '') {
+        alert('Please enter your name!');
+        return;
+      }
+      userName = nameInput.value;
+      
+      // Create confirmation modal.
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <h3>Did you enter your real name?</h3>
+        <button onclick="confirmName(true)">Yes</button>
+        <button onclick="confirmName(false)">No</button>
+      `;
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      document.body.appendChild(overlay);
+      document.body.appendChild(modal);
+    }
+
+    function confirmName(isReal) {
+      document.querySelector('.modal').remove();
+      document.querySelector('.overlay').remove();
+      if (isReal) {
+        document.getElementById('name-input').style.display = 'none';
+        document.getElementById('valentine-question').style.display = 'block';
+      } else {
+        document.getElementById('name').value = '';
+      }
+    }
+
+    // Called when the original question's button is clicked.
+    function answer(isYes) {
+      if (isYes) {
+        showSuccess();
+      } else {
+        noAttempts++;
+        playErrorSound();
+        spawnNoButton();
+        if (noAttempts >= 3) {
+          // After the third "No" click, show buffering animation first.
+          showBufferingAnimation();
+        }
+      }
+    }
+
+    // Play the error sound.
+    function playErrorSound() {
+      const errorSound = new Audio("error.mp3"); // Use a relative path accessible via your server
+      errorSound.play().catch(err => console.log("Error sound failed:", err));
+    }
+
+    // Spawn a "No" button with a high z-index so it appears on top.
+    function spawnNoButton() {
+      const noButton = document.createElement('button');
+      noButton.innerText = 'No';
+      noButton.style.position = 'absolute';
+      noButton.style.left = `${Math.random() * 80 + 10}%`;
+      noButton.style.top = `${Math.random() * 80 + 10}%`;
+      noButton.style.zIndex = 1500;  // ensure it appears above the main container
+      noButton.onclick = () => {
+        noAttempts++;
+        playErrorSound();
+        noButton.remove();
+        if (noAttempts >= 3) {
+          showBufferingAnimation();
+        }
+      };
+      document.body.appendChild(noButton);
+      // Remove the spawned button after 4 seconds if not clicked.
+      setTimeout(() => {
+        noButton.remove();
+      }, 4000);
+    }
+
+    // Show buffering animation (like YouTube) then (after 2 seconds) play error sound,
+    // display error overlay for 3 seconds, and finally re-display the question with updated options.
+    function showBufferingAnimation() {
+      // Remove any remaining spawned "No" buttons.
+      const spawned = document.querySelectorAll('button[style*="position: absolute"]');
+      spawned.forEach(btn => btn.remove());
+
+      const bufferingOverlay = document.createElement('div');
+      bufferingOverlay.className = 'buffering-screen';
+      bufferingOverlay.innerHTML = `
+        <div class="buffering-spinner"></div>
+        <div>Loading...</div>
+      `;
+      document.body.appendChild(bufferingOverlay);
+      
+      // After 2 seconds, remove buffering overlay, play error sound, then show error overlay.
+      setTimeout(() => {
+        bufferingOverlay.remove();
+        playErrorSound();
+        showErrorOverlay();
+      }, 2000);
+    }
+
+    // Show error overlay then, after 3 seconds, remove it and re-display the question with updated options.
+    function showErrorOverlay() {
+      const errorOverlay = document.createElement('div');
+      errorOverlay.className = 'error-text';
+      errorOverlay.innerHTML = `<p>Uncaught Error Occurred: Re-Displaying Question</p>`;
+      document.body.appendChild(errorOverlay);
+      setTimeout(() => {
+        errorOverlay.remove();
+        noAttempts = 0;
+        // Re-display the Valentine question and update the buttons.
+        const qDiv = document.getElementById('valentine-question');
+        qDiv.style.display = 'block';
+        const btns = qDiv.getElementsByTagName('button');
+        btns[0].innerText = "Yes";
+        btns[1].innerText = "YES!!";
+        btns[0].setAttribute("onclick", "answer(true)");
+        btns[1].setAttribute("onclick", "answer(true)");
+      }, 3000);
+    }
+
+    // Show success screen and stop background music.
+    function showSuccess() {
+      document.getElementById('valentine-question').style.display = 'none';
+      const successScreen = document.createElement('div');
+      successScreen.className = 'success-screen';
+      successScreen.innerHTML = `
+        <h1>Success!</h1>
+        <p>Congratulations on being the lucky duck who just won a chance to be my Valentine!!</p>
+        <img src="gif.gif" alt="Success" class="success-gif" />
+      `;
+      const Music = new Audio();
+      Music.src = "success.mp3"; // Use a relative path accessible via your server
+      document.body.appendChild(successScreen);
+      Music.play().catch(err => console.log("Success sound failed:", err));
+      // Stop background music permanently.
+      backgroundMusic.pause();
+    }
+
+    // Toggle background music.
+    function toggleMusic() {
+      if (isMusicPlaying) {
+        backgroundMusic.pause();
+        isMusicPlaying = false;
+      } else {
+        backgroundMusic.play().then(() => {
+          isMusicPlaying = true;
+        }).catch(err => console.log("Toggle music play failed:", err));
+      }
+    }
+  </script>
+</body>
+</html>
