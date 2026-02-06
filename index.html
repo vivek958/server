@@ -949,40 +949,60 @@
       }
     }
 
-    // Enable No button evasion on hover/touch
+    // Enable No button evasion on hover/touch - COUNT AS ATTEMPT
     function enableNoButtonEvasion() {
-      // Mouse hover evasion
+      // Mouse hover evasion - COUNT AS ATTEMPT
       noButton.addEventListener('mouseenter', () => {
         if (noAttempts < 5) {
+          noAttempts++; // INCREMENT ON EVASION
+          attemptCount.textContent = noAttempts;
           moveNoButton();
+          
+          if (noAttempts >= 5) {
+            setTimeout(() => {
+              removeAllSpawnedButtons();
+              showTransitionScreen();
+            }, 300);
+          }
         }
       });
 
-      // Touch move evasion
+      // Touch start evasion - COUNT AS ATTEMPT
       noButton.addEventListener('touchstart', (e) => {
         if (noAttempts < 5) {
           e.preventDefault();
+          noAttempts++; // INCREMENT ON EVASION
+          attemptCount.textContent = noAttempts;
           moveNoButton();
+          
+          if (noAttempts >= 5) {
+            setTimeout(() => {
+              removeAllSpawnedButtons();
+              showTransitionScreen();
+            }, 300);
+          }
         }
       });
     }
 
-    // Move No button to random position - FIXED BOUNDS
+    // Move No button to random position - STRICT 10PX BUFFER
     function moveNoButton() {
-      const buttonWidth = noButton.offsetWidth || 140;
-      const buttonHeight = noButton.offsetHeight || 50;
-      const margin = 20;
+      const buffer = 10;
+      const btnRect = noButton.getBoundingClientRect();
+      const buttonWidth = btnRect.width || 120;
+      const buttonHeight = btnRect.height || 50;
       
-      const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
-      const maxY = Math.max(100, window.innerHeight - buttonHeight - margin);
+      const maxX = window.innerWidth - buttonWidth - buffer;
+      const maxY = window.innerHeight - buttonHeight - buffer;
       
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * (maxY - 100) + 100; // Keep away from top
+      const randomX = Math.max(buffer, Math.random() * maxX);
+      const randomY = Math.max(buffer + 80, Math.random() * (maxY - 80)); // Keep away from top
       
       noButton.style.position = 'fixed';
       noButton.style.left = randomX + 'px';
       noButton.style.top = randomY + 'px';
       noButton.style.transform = 'scale(0.9)';
+      noButton.style.zIndex = '1400';
       
       setTimeout(() => {
         noButton.style.transform = 'scale(1)';
@@ -1017,21 +1037,21 @@
       errorSound.play().catch(err => console.log('Error sound failed:', err));
     }
 
-    // Spawn floating No buttons - FIXED BOUNDS
+    // Spawn floating No buttons - STRICT 10PX BUFFER
     function spawnNoButton() {
       const btn = document.createElement('button');
       btn.innerText = '💔 No';
       btn.className = 'spawned-no no-button';
       
-      const buttonWidth = 140;
+      const buffer = 10;
+      const buttonWidth = 120;
       const buttonHeight = 50;
-      const margin = 20;
       
-      const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
-      const maxY = Math.max(100, window.innerHeight - buttonHeight - margin);
+      const maxX = window.innerWidth - buttonWidth - buffer;
+      const maxY = window.innerHeight - buttonHeight - buffer;
       
-      const x = Math.random() * maxX;
-      const y = Math.random() * (maxY - 100) + 100;
+      const x = Math.max(buffer, Math.random() * maxX);
+      const y = Math.max(buffer + 80, Math.random() * (maxY - 80));
       
       btn.style.left = x + 'px';
       btn.style.top = y + 'px';
@@ -1118,7 +1138,7 @@
       }
     }
 
-    // Level 1: Find the No among Yes buttons - FIXED ATTEMPT COUNTER
+    // Level 1: Find the No among Yes buttons
     function startLevel1() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1150,7 +1170,7 @@
           btn.textContent = '💔 No';
           btn.className = 'grid-button no-button';
           btn.onclick = () => {
-            noAttempts++; // INCREMENT COUNTER
+            noAttempts++;
             attemptCount.textContent = noAttempts;
             onLevel1NoFound();
           };
@@ -1197,7 +1217,7 @@
       }, 2500);
     }
 
-    // Level 2: Moving target buttons - FIXED BOUNDS
+    // Level 2: Moving target buttons - STRICT 10PX BUFFER
     function startLevel2() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1227,22 +1247,21 @@
         const btn = document.createElement('button');
         btn.className = 'moving-button';
         
-        const buttonWidth = 140;
+        const buffer = 10;
+        const buttonWidth = 120;
         const buttonHeight = 50;
-        const margin = 40;
         
-        // Safe starting position
-        const maxX = Math.max(margin, window.innerWidth - buttonWidth - margin);
-        const maxY = Math.max(150, window.innerHeight - buttonHeight - margin);
+        const maxX = window.innerWidth - buttonWidth - buffer;
+        const maxY = window.innerHeight - buttonHeight - buffer;
         
-        const startX = Math.random() * (maxX - margin) + margin;
-        const startY = Math.random() * (maxY - 150) + 150;
+        const startX = Math.max(buffer, Math.random() * maxX);
+        const startY = Math.max(buffer + 100, Math.random() * (maxY - 100));
         
         btn.style.left = startX + 'px';
         btn.style.top = startY + 'px';
         
-        // Set constrained random movement variables
-        const moveRange = 100;
+        // Constrained movement - stay within bounds
+        const moveRange = 60;
         btn.style.setProperty('--dx1', `${(Math.random() - 0.5) * moveRange}px`);
         btn.style.setProperty('--dy1', `${(Math.random() - 0.5) * moveRange}px`);
         btn.style.setProperty('--dx2', `${(Math.random() - 0.5) * moveRange}px`);
@@ -1254,7 +1273,7 @@
           btn.textContent = '💔 No';
           btn.className += ' no-button';
           btn.onclick = () => {
-            noAttempts++; // INCREMENT COUNTER
+            noAttempts++;
             attemptCount.textContent = noAttempts;
             onLevel2NoFound();
           };
@@ -1300,7 +1319,7 @@
       }, 2500);
     }
 
-    // Level 3: Speed challenge - FIXED BOUNDS
+    // Level 3: Speed challenge - STRICT 10PX BUFFER
     function startLevel3() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1343,22 +1362,22 @@
         btn.style.position = 'fixed';
         btn.style.zIndex = '1850';
         
-        const buttonWidth = 140;
+        const buffer = 10;
+        const buttonWidth = 120;
         const buttonHeight = 50;
-        const margin = 20;
         
-        const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
-        const maxY = Math.max(150, window.innerHeight - buttonHeight - margin);
+        const maxX = window.innerWidth - buttonWidth - buffer;
+        const maxY = window.innerHeight - buttonHeight - buffer;
         
-        const x = Math.random() * maxX;
-        const y = Math.random() * (maxY - 150) + 150;
+        const x = Math.max(buffer, Math.random() * maxX);
+        const y = Math.max(buffer + 100, Math.random() * (maxY - 100));
         
         btn.style.left = x + 'px';
         btn.style.top = y + 'px';
         
         btn.onclick = () => {
           foundCount++;
-          noAttempts++; // INCREMENT COUNTER
+          noAttempts++;
           attemptCount.textContent = noAttempts;
           playErrorSound();
           createParticles(x + 60, y + 30, 15);
