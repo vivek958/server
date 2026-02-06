@@ -476,38 +476,163 @@
       }
     }
 
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .container {
-        width: 95%;
-        margin: 10px;
-      }
+    /* Level screens */
+    .level-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1800;
+      padding: 20px;
+    }
 
-      button {
-        padding: 12px 24px;
-        margin: 8px;
-        min-width: 100px;
-      }
+    .level-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: clamp(30px, 6vw, 50px);
+      border-radius: 25px;
+      max-width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+      animation: successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-      #audio-controls {
-        bottom: 15px;
-        left: 15px;
-        width: 50px;
-        height: 50px;
-      }
+    .level-title {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: #ff1493;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-      #audio-controls button {
-        font-size: 20px;
+    .level-description {
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    /* Button grid for Level 1 */
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+      max-width: 800px;
+    }
+
+    .grid-button {
+      padding: 12px 20px;
+      min-width: auto;
+      margin: 0;
+      font-size: clamp(12px, 2.5vw, 16px);
+    }
+
+    /* Moving buttons for Level 2 */
+    .moving-button {
+      position: fixed !important;
+      animation: moveRandom 3s ease-in-out infinite;
+      z-index: 1850 !important;
+    }
+
+    @keyframes moveRandom {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(var(--dx1), var(--dy1)); }
+      50% { transform: translate(var(--dx2), var(--dy2)); }
+      75% { transform: translate(var(--dx3), var(--dy3)); }
+    }
+
+    /* Speed buttons for Level 3 */
+    .speed-button {
+      animation: speedFade 2s ease-in-out;
+    }
+
+    @keyframes speedFade {
+      0%, 80% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    /* Attempt counter */
+    .attempt-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      color: #ff1493;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      animation: slideInRight 0.5s ease;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
       }
     }
 
-    /* Accessibility improvements */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+    /* Level indicator */
+    .level-indicator {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 25px;
+      border-radius: 15px;
+      font-weight: bold;
+      color: #ff1493;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      animation: slideInDown 0.5s ease;
+    }
+
+    @keyframes slideInDown {
+      from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
       }
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+    }
+
+    /* Shake device prompt */
+    .shake-prompt {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      border-radius: 15px;
+      font-size: 14px;
+      color: #ff1493;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
     }
 
     /* Particle effect container */
@@ -542,53 +667,47 @@
       }
     }
 
-    /* Attempt counter */
-    .attempt-counter {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 10px 20px;
-      border-radius: 15px;
-      font-weight: bold;
-      color: #ff1493;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 100;
-      animation: slideInRight 0.5s ease;
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        margin: 10px;
       }
-      to {
-        transform: translateX(0);
-        opacity: 1;
+
+      button {
+        padding: 12px 24px;
+        margin: 8px;
+        min-width: 100px;
+      }
+
+      #audio-controls {
+        bottom: 15px;
+        left: 15px;
+        width: 50px;
+        height: 50px;
+      }
+
+      #audio-controls button {
+        font-size: 20px;
+      }
+
+      .button-grid {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 8px;
+      }
+
+      .grid-button {
+        padding: 10px 15px;
       }
     }
 
-    /* Shake device prompt */
-    .shake-prompt {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 15px 25px;
-      border-radius: 15px;
-      font-size: 14px;
-      color: #ff1493;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 100;
-      animation: bounce 2s ease-in-out infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-10px); }
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
@@ -626,7 +745,12 @@
   
   <!-- Attempt counter -->
   <div class="attempt-counter" id="attempt-counter" style="display: none;">
-    Attempts: <span id="attempt-count">0</span>
+    Attempts: <span id="attempt-count">0</span>/5
+  </div>
+
+  <!-- Level indicator -->
+  <div class="level-indicator" id="level-indicator" style="display: none;">
+    Level: <span id="level-number">0</span>
   </div>
   
   <!-- Shake prompt for mobile -->
@@ -643,6 +767,7 @@
     // Configuration and state
     let userName = '';
     let noAttempts = 0;
+    let currentLevel = 0;
     let isMusicPlaying = false;
     let audioInitialized = false;
     let mouseMoveEnabled = false;
@@ -656,6 +781,8 @@
     const attemptCounter = document.getElementById('attempt-counter');
     const attemptCount = document.getElementById('attempt-count');
     const shakePrompt = document.getElementById('shake-prompt');
+    const levelIndicator = document.getElementById('level-indicator');
+    const levelNumber = document.getElementById('level-number');
 
     // Audio setup
     const backgroundMusic = new Audio('bg.mp3');
@@ -788,6 +915,7 @@
         document.getElementById('name-input').style.display = 'none';
         document.getElementById('valentine-question').style.display = 'block';
         attemptCounter.style.display = 'block';
+        levelIndicator.style.display = 'block';
         enableNoButtonEvasion();
         
         // Show shake prompt on mobile after 5 seconds
@@ -807,14 +935,14 @@
     function enableNoButtonEvasion() {
       // Mouse hover evasion
       noButton.addEventListener('mouseenter', () => {
-        if (noAttempts < 3) {
+        if (noAttempts < 5) {
           moveNoButton();
         }
       });
 
       // Touch move evasion
       noButton.addEventListener('touchstart', (e) => {
-        if (noAttempts < 3) {
+        if (noAttempts < 5) {
           e.preventDefault();
           moveNoButton();
         }
@@ -849,8 +977,10 @@
         attemptCount.textContent = noAttempts;
         playErrorSound();
         
-        if (noAttempts >= 3) {
-          showBufferingAnimation();
+        if (noAttempts >= 5) {
+          // Start Level 1 after 5 attempts
+          removeAllSpawnedButtons();
+          showTransitionScreen();
         } else {
           spawnNoButton();
         }
@@ -892,9 +1022,9 @@
         createParticles(x + 60, y + 30, 10);
         setTimeout(() => btn.remove(), 500);
         
-        if (noAttempts >= 3) {
+        if (noAttempts >= 5) {
           removeAllSpawnedButtons();
-          showBufferingAnimation();
+          showTransitionScreen();
         }
       };
       
@@ -918,68 +1048,358 @@
       });
     }
 
-    // Show buffering animation
-    function showBufferingAnimation() {
-      removeAllSpawnedButtons();
-      
-      const bufferingOverlay = document.createElement('div');
-      bufferingOverlay.className = 'buffering-screen';
-      bufferingOverlay.innerHTML = `
+    // Show transition screen between levels
+    function showTransitionScreen() {
+      const transition = document.createElement('div');
+      transition.className = 'buffering-screen';
+      transition.innerHTML = `
         <div class="buffering-spinner"></div>
-        <div>🔄 Processing your response...</div>
+        <div>😼 Unlocking next level...</div>
       `;
-      document.body.appendChild(bufferingOverlay);
+      document.body.appendChild(transition);
       
       setTimeout(() => {
-        bufferingOverlay.classList.add('fade-out');
+        transition.classList.add('fade-out');
         setTimeout(() => {
-          bufferingOverlay.remove();
-          playErrorSound();
-          showErrorOverlay();
+          transition.remove();
+          currentLevel++;
+          levelNumber.textContent = currentLevel;
+          startLevel(currentLevel);
+        }, 500);
+      }, 2000);
+    }
+
+    // Start specific level
+    function startLevel(level) {
+      // Hide main content
+      document.getElementById('main-content').style.display = 'none';
+      attemptCounter.style.display = 'none';
+      shakePrompt.style.display = 'none';
+
+      switch(level) {
+        case 1:
+          startLevel1();
+          break;
+        case 2:
+          startLevel2();
+          break;
+        case 3:
+          startLevel3();
+          break;
+      }
+    }
+
+    // Level 1: Find the No among Yes buttons
+    function startLevel1() {
+      const levelScreen = document.createElement('div');
+      levelScreen.className = 'level-screen';
+      levelScreen.id = 'level1-screen';
+      
+      const content = document.createElement('div');
+      content.className = 'level-content';
+      
+      const title = document.createElement('h2');
+      title.className = 'level-title';
+      title.textContent = '😼 Level 1: Find the No!';
+      
+      const description = document.createElement('p');
+      description.className = 'level-description';
+      description.innerHTML = 'Now try to find the <strong>No</strong> button among all these Yes buttons...<br>I dare you! 😈';
+      
+      const buttonGrid = document.createElement('div');
+      buttonGrid.className = 'button-grid';
+      
+      // Create 30-40 Yes buttons and 1 No button
+      const totalButtons = 35;
+      const noPosition = Math.floor(Math.random() * totalButtons);
+      
+      for (let i = 0; i < totalButtons; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'grid-button yes-button';
+        
+        if (i === noPosition) {
+          btn.textContent = '💔 No';
+          btn.className = 'grid-button no-button';
+          btn.onclick = () => onLevel1NoFound();
+        } else {
+          btn.textContent = '💚 Yes';
+          btn.onclick = () => answer(true);
+        }
+        
+        buttonGrid.appendChild(btn);
+      }
+      
+      content.appendChild(title);
+      content.appendChild(description);
+      content.appendChild(buttonGrid);
+      levelScreen.appendChild(content);
+      document.body.appendChild(levelScreen);
+      
+      launchConfetti();
+    }
+
+    // Level 1 No button found
+    function onLevel1NoFound() {
+      playErrorSound();
+      createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
+      
+      const feedback = document.createElement('div');
+      feedback.className = 'buffering-screen';
+      feedback.innerHTML = `
+        <div style="font-size: 3em;">😱</div>
+        <div style="margin-top: 20px;">You actually found it?!</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">Let's make this harder...</div>
+      `;
+      document.body.appendChild(feedback);
+      
+      setTimeout(() => {
+        feedback.classList.add('fade-out');
+        setTimeout(() => {
+          feedback.remove();
+          document.getElementById('level1-screen')?.remove();
+          currentLevel++;
+          levelNumber.textContent = currentLevel;
+          startLevel(currentLevel);
         }, 500);
       }, 2500);
     }
 
-    // Show error overlay
-    function showErrorOverlay() {
-      const errorOverlay = document.createElement('div');
-      errorOverlay.className = 'error-text';
-      errorOverlay.innerHTML = `
-        <p>⚠️ System Error Detected</p>
-        <p style="font-size: 0.8em; margin-top: 10px;">Recalibrating options...</p>
+    // Level 2: Moving target buttons
+    function startLevel2() {
+      const levelScreen = document.createElement('div');
+      levelScreen.className = 'level-screen';
+      levelScreen.id = 'level2-screen';
+      
+      const content = document.createElement('div');
+      content.className = 'level-content';
+      
+      const title = document.createElement('h2');
+      title.className = 'level-title';
+      title.textContent = '🎯 Level 2: Moving Target!';
+      
+      const description = document.createElement('p');
+      description.className = 'level-description';
+      description.innerHTML = 'The buttons are moving now!<br>Can you catch the <strong>No</strong>? 🏃‍♂️💨';
+      
+      content.appendChild(title);
+      content.appendChild(description);
+      levelScreen.appendChild(content);
+      document.body.appendChild(levelScreen);
+      
+      // Create 10 moving buttons
+      const numButtons = 10;
+      const noPosition = Math.floor(Math.random() * numButtons);
+      
+      for (let i = 0; i < numButtons; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'moving-button';
+        
+        // Random starting position
+        const startX = Math.random() * (window.innerWidth - 150);
+        const startY = Math.random() * (window.innerHeight - 100) + 100;
+        
+        btn.style.left = startX + 'px';
+        btn.style.top = startY + 'px';
+        
+        // Set random movement variables
+        btn.style.setProperty('--dx1', `${(Math.random() - 0.5) * 200}px`);
+        btn.style.setProperty('--dy1', `${(Math.random() - 0.5) * 200}px`);
+        btn.style.setProperty('--dx2', `${(Math.random() - 0.5) * 200}px`);
+        btn.style.setProperty('--dy2', `${(Math.random() - 0.5) * 200}px`);
+        btn.style.setProperty('--dx3', `${(Math.random() - 0.5) * 200}px`);
+        btn.style.setProperty('--dy3', `${(Math.random() - 0.5) * 200}px`);
+        
+        if (i === noPosition) {
+          btn.textContent = '💔 No';
+          btn.className += ' no-button';
+          btn.onclick = () => onLevel2NoFound();
+        } else {
+          btn.textContent = '💚 Yes';
+          btn.className += ' yes-button';
+          btn.onclick = () => answer(true);
+        }
+        
+        document.body.appendChild(btn);
+      }
+    }
+
+    // Level 2 No button found
+    function onLevel2NoFound() {
+      playErrorSound();
+      createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
+      
+      // Remove all moving buttons
+      document.querySelectorAll('.moving-button').forEach(btn => {
+        btn.classList.add('fade-out');
+        setTimeout(() => btn.remove(), 500);
+      });
+      
+      const feedback = document.createElement('div');
+      feedback.className = 'buffering-screen';
+      feedback.innerHTML = `
+        <div style="font-size: 3em;">🤯</div>
+        <div style="margin-top: 20px;">Okay, you're good!</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">But can you handle THIS?</div>
       `;
-      document.body.appendChild(errorOverlay);
+      document.body.appendChild(feedback);
       
       setTimeout(() => {
-        errorOverlay.classList.add('fade-out');
+        feedback.classList.add('fade-out');
         setTimeout(() => {
-          errorOverlay.remove();
-          resetQuestion();
+          feedback.remove();
+          document.getElementById('level2-screen')?.remove();
+          currentLevel++;
+          levelNumber.textContent = currentLevel;
+          startLevel(currentLevel);
+        }, 500);
+      }, 2500);
+    }
+
+    // Level 3: Speed challenge - disappearing buttons
+    function startLevel3() {
+      const levelScreen = document.createElement('div');
+      levelScreen.className = 'level-screen';
+      levelScreen.id = 'level3-screen';
+      
+      const content = document.createElement('div');
+      content.className = 'level-content';
+      
+      const title = document.createElement('h2');
+      title.className = 'level-title';
+      title.textContent = '⚡ Level 3: Speed Run!';
+      
+      const description = document.createElement('p');
+      description.className = 'level-description';
+      description.innerHTML = 'The No buttons fade away quickly!<br>Click 5 of them before they disappear! ⏱️';
+      
+      const progressText = document.createElement('p');
+      progressText.id = 'level3-progress';
+      progressText.style.fontSize = '1.5em';
+      progressText.style.fontWeight = 'bold';
+      progressText.style.color = '#ff1493';
+      progressText.style.marginTop = '20px';
+      progressText.textContent = 'Found: 0/5';
+      
+      content.appendChild(title);
+      content.appendChild(description);
+      content.appendChild(progressText);
+      levelScreen.appendChild(content);
+      document.body.appendChild(levelScreen);
+      
+      let foundCount = 0;
+      const targetCount = 5;
+      
+      function spawnSpeedButton() {
+        if (foundCount >= targetCount) return;
+        
+        const btn = document.createElement('button');
+        btn.className = 'speed-button no-button';
+        btn.textContent = '💔 No';
+        btn.style.position = 'fixed';
+        btn.style.zIndex = '1850';
+        
+        const x = Math.random() * (window.innerWidth - 150);
+        const y = Math.random() * (window.innerHeight - 100) + 100;
+        
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+        
+        btn.onclick = () => {
+          foundCount++;
+          playErrorSound();
+          createParticles(x + 60, y + 30, 15);
+          btn.classList.add('fade-out');
+          setTimeout(() => btn.remove(), 500);
+          
+          document.getElementById('level3-progress').textContent = `Found: ${foundCount}/${targetCount}`;
+          
+          if (foundCount >= targetCount) {
+            onLevel3Complete();
+          }
+        };
+        
+        document.body.appendChild(btn);
+        
+        // Button disappears after 2 seconds
+        setTimeout(() => {
+          if (document.body.contains(btn)) {
+            btn.classList.add('fade-out');
+            setTimeout(() => btn.remove(), 500);
+          }
+        }, 2000);
+      }
+      
+      // Spawn buttons continuously
+      const spawnInterval = setInterval(() => {
+        if (foundCount >= targetCount) {
+          clearInterval(spawnInterval);
+        } else {
+          spawnSpeedButton();
+        }
+      }, 1000);
+      
+      // Initial spawn
+      spawnSpeedButton();
+    }
+
+    // Level 3 complete
+    function onLevel3Complete() {
+      playErrorSound();
+      
+      // Remove all speed buttons
+      document.querySelectorAll('.speed-button').forEach(btn => {
+        btn.classList.add('fade-out');
+        setTimeout(() => btn.remove(), 500);
+      });
+      
+      const feedback = document.createElement('div');
+      feedback.className = 'buffering-screen';
+      feedback.innerHTML = `
+        <div style="font-size: 3em;">😤</div>
+        <div style="margin-top: 20px;">FINE! You win!</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">I guess there's only one option left...</div>
+      `;
+      document.body.appendChild(feedback);
+      
+      setTimeout(() => {
+        feedback.classList.add('fade-out');
+        setTimeout(() => {
+          feedback.remove();
+          document.getElementById('level3-screen')?.remove();
+          showFinalChoice();
         }, 500);
       }, 3000);
     }
 
-    // Reset question with only Yes options
-    function resetQuestion() {
-      noAttempts = 0;
-      attemptCount.textContent = '0';
+    // Show final choice - only Yes buttons
+    function showFinalChoice() {
+      document.getElementById('main-content').style.display = 'block';
+      levelIndicator.style.display = 'none';
       
       const qDiv = document.getElementById('valentine-question');
-      const btnContainer = document.getElementById('button-container');
-      btnContainer.innerHTML = `
-        <button class="yes-button" onclick="answer(true)">💚 Yes!</button>
-        <button class="yes-button" onclick="answer(true)">💚 Absolutely Yes!</button>
+      qDiv.innerHTML = `
+        <h1>💝 Will You Be My Valentine? 💝</h1>
+        <p style="font-size: 1.2em; color: #333; margin: 20px 0;">After all that... you know the answer 😊</p>
+        <div id="button-container">
+          <button class="yes-button" onclick="answer(true)">💚 Yes!</button>
+          <button class="yes-button" onclick="answer(true)">💚 Absolutely Yes!</button>
+        </div>
       `;
-      
       qDiv.style.display = 'block';
+      
       launchConfetti();
     }
 
     // Show success screen
     function showSuccess() {
       document.getElementById('valentine-question').style.display = 'none';
+      document.getElementById('main-content').style.display = 'none';
       attemptCounter.style.display = 'none';
       shakePrompt.style.display = 'none';
+      levelIndicator.style.display = 'none';
+      
+      // Remove any level screens
+      document.querySelectorAll('.level-screen').forEach(screen => screen.remove());
       
       const successScreen = document.createElement('div');
       successScreen.className = 'success-screen';
@@ -990,6 +1410,7 @@
         <p style="font-size: 1.5em; color: #ff1493; font-weight: bold;">Being My Valentine! 💝</p>
         <img src="gif.gif" alt="Success" class="success-gif" />
         <p style="margin-top: 20px; font-size: 0.9em;">Thank you for making my day special! ✨</p>
+        ${currentLevel > 0 ? `<p style="margin-top: 10px; font-size: 0.8em; color: #666;">You completed ${currentLevel} level${currentLevel > 1 ? 's' : ''}! 🏆</p>` : ''}
       `;
       
       document.body.appendChild(successScreen);
@@ -1008,6 +1429,7 @@
       launchConfetti();
       setTimeout(() => launchConfetti(), 1000);
       setTimeout(() => launchConfetti(), 2000);
+      setTimeout(() => launchConfetti(), 3000);
     }
 
     // Toggle background music
@@ -1064,7 +1486,7 @@
 
     // Handle shake event
     function onShakeDetected() {
-      if (noAttempts > 0 && noAttempts < 3) {
+      if (noAttempts > 0 && noAttempts < 5) {
         createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
         
         // Spawn multiple No buttons
@@ -1119,6 +1541,7 @@
     // Console easter egg
     console.log('%c💝 Happy Valentine\'s Day! 💝', 'font-size: 24px; color: #ff1493; font-weight: bold;');
     console.log('%cMade with ❤️ for someone special', 'font-size: 16px; color: #ff69b4;');
+    console.log('%c3 levels of playful challenges await! 😼', 'font-size: 14px; color: #ff69b4;');
   </script>
 </body>
 </html>
