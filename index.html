@@ -790,6 +790,7 @@
     let audioInitialized = false;
     let mouseMoveEnabled = false;
     let shakeDetectionEnabled = false;
+    let evasionEnabled = true; // NEW: Track if evasion should be enabled
 
     const parallax = document.getElementById('parallax');
     const bgElements = ['💖', '💝', '💕', '💗', '💓', '💞', '💘', '🌸', '✨', '🎀', '🌹'];
@@ -934,6 +935,7 @@
         document.getElementById('valentine-question').style.display = 'block';
         attemptCounter.style.display = 'block';
         levelIndicator.style.display = 'block';
+        evasionEnabled = true; // Enable evasion for Level 0
         enableNoButtonEvasion();
         
         // Show shake prompt on mobile after 5 seconds
@@ -949,12 +951,12 @@
       }
     }
 
-    // Enable No button evasion on hover/touch - COUNT AS ATTEMPT
+    // Enable No button evasion on hover/touch - ONLY WHEN evasionEnabled = true (Level 0)
     function enableNoButtonEvasion() {
-      // Mouse hover evasion - COUNT AS ATTEMPT
+      // Mouse hover evasion - COUNT AS ATTEMPT (ONLY IN LEVEL 0)
       noButton.addEventListener('mouseenter', () => {
-        if (noAttempts < 5) {
-          noAttempts++; // INCREMENT ON EVASION
+        if (evasionEnabled && noAttempts < 5) {
+          noAttempts++;
           attemptCount.textContent = noAttempts;
           moveNoButton();
           
@@ -967,11 +969,11 @@
         }
       });
 
-      // Touch start evasion - COUNT AS ATTEMPT
+      // Touch start evasion - COUNT AS ATTEMPT (ONLY IN LEVEL 0)
       noButton.addEventListener('touchstart', (e) => {
-        if (noAttempts < 5) {
+        if (evasionEnabled && noAttempts < 5) {
           e.preventDefault();
-          noAttempts++; // INCREMENT ON EVASION
+          noAttempts++;
           attemptCount.textContent = noAttempts;
           moveNoButton();
           
@@ -1100,6 +1102,8 @@
 
     // Show transition screen between levels
     function showTransitionScreen() {
+      evasionEnabled = false; // DISABLE EVASION AFTER LEVEL 0
+      
       const transition = document.createElement('div');
       transition.className = 'buffering-screen';
       transition.innerHTML = `
@@ -1138,7 +1142,7 @@
       }
     }
 
-    // Level 1: Find the No among Yes buttons
+    // Level 1: Find the No among Yes buttons - NO EVASION
     function startLevel1() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1561,7 +1565,7 @@
 
     // Handle shake event
     function onShakeDetected() {
-      if (noAttempts > 0 && noAttempts < 5) {
+      if (noAttempts > 0 && noAttempts < 5 && evasionEnabled) {
         createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
         
         // Spawn multiple No buttons
