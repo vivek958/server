@@ -15,13 +15,20 @@
     }
 
     /* Base styles with improved mobile support */
+    html {
+      height: 100%;
+      height: -webkit-fill-available;
+    }
+
     body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
       min-height: -webkit-fill-available;
+      height: 100%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #ffd36e 100%);
       background-size: 400% 400%;
+      background-attachment: fixed;
       animation: gradientShift 15s ease infinite;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
@@ -39,11 +46,15 @@
       50% { background-position: 100% 50%; }
     }
 
-    /* Floating hearts background */
+    /* Floating hearts background - FIXED FOR MOBILE */
     .parallax {
       position: fixed;
-      width: 100%;
-      height: 100%;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: -webkit-fill-available;
+      min-height: 100%;
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
@@ -60,7 +71,7 @@
 
     @keyframes float {
       0% { 
-        transform: translateY(100vh) rotate(0deg) scale(0.8);
+        transform: translateY(110vh) rotate(0deg) scale(0.8);
         opacity: 0;
       }
       10% {
@@ -491,6 +502,7 @@
       align-items: center;
       z-index: 1800;
       padding: 20px;
+      overflow-y: auto;
     }
 
     .level-content {
@@ -570,7 +582,7 @@
       font-weight: bold;
       color: #ff1493;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 100;
+      z-index: 1900;
       animation: slideInRight 0.5s ease;
     }
 
@@ -598,7 +610,7 @@
       font-weight: bold;
       color: #ff1493;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 100;
+      z-index: 1900;
       animation: slideInDown 0.5s ease;
     }
 
@@ -698,6 +710,12 @@
 
       .grid-button {
         padding: 10px 15px;
+      }
+
+      .attempt-counter,
+      .level-indicator {
+        font-size: 14px;
+        padding: 8px 15px;
       }
     }
 
@@ -949,12 +967,17 @@
       });
     }
 
-    // Move No button to random position
+    // Move No button to random position - FIXED BOUNDS
     function moveNoButton() {
-      const maxX = window.innerWidth - noButton.offsetWidth - 40;
-      const maxY = window.innerHeight - noButton.offsetHeight - 40;
+      const buttonWidth = noButton.offsetWidth || 140;
+      const buttonHeight = noButton.offsetHeight || 50;
+      const margin = 20;
+      
+      const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
+      const maxY = Math.max(100, window.innerHeight - buttonHeight - margin);
+      
       const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
+      const randomY = Math.random() * (maxY - 100) + 100; // Keep away from top
       
       noButton.style.position = 'fixed';
       noButton.style.left = randomX + 'px';
@@ -965,7 +988,7 @@
         noButton.style.transform = 'scale(1)';
       }, 200);
 
-      createParticles(randomX + noButton.offsetWidth / 2, randomY + noButton.offsetHeight / 2, 8);
+      createParticles(randomX + buttonWidth / 2, randomY + buttonHeight / 2, 8);
     }
 
     // Answer handler
@@ -994,14 +1017,21 @@
       errorSound.play().catch(err => console.log('Error sound failed:', err));
     }
 
-    // Spawn floating No buttons
+    // Spawn floating No buttons - FIXED BOUNDS
     function spawnNoButton() {
       const btn = document.createElement('button');
       btn.innerText = '💔 No';
       btn.className = 'spawned-no no-button';
       
-      const x = Math.random() * (window.innerWidth - 120);
-      const y = Math.random() * (window.innerHeight - 60);
+      const buttonWidth = 140;
+      const buttonHeight = 50;
+      const margin = 20;
+      
+      const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
+      const maxY = Math.max(100, window.innerHeight - buttonHeight - margin);
+      
+      const x = Math.random() * maxX;
+      const y = Math.random() * (maxY - 100) + 100;
       
       btn.style.left = x + 'px';
       btn.style.top = y + 'px';
@@ -1073,7 +1103,6 @@
     function startLevel(level) {
       // Hide main content
       document.getElementById('main-content').style.display = 'none';
-      attemptCounter.style.display = 'none';
       shakePrompt.style.display = 'none';
 
       switch(level) {
@@ -1089,7 +1118,7 @@
       }
     }
 
-    // Level 1: Find the No among Yes buttons
+    // Level 1: Find the No among Yes buttons - FIXED ATTEMPT COUNTER
     function startLevel1() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1120,7 +1149,11 @@
         if (i === noPosition) {
           btn.textContent = '💔 No';
           btn.className = 'grid-button no-button';
-          btn.onclick = () => onLevel1NoFound();
+          btn.onclick = () => {
+            noAttempts++; // INCREMENT COUNTER
+            attemptCount.textContent = noAttempts;
+            onLevel1NoFound();
+          };
         } else {
           btn.textContent = '💚 Yes';
           btn.onclick = () => answer(true);
@@ -1164,7 +1197,7 @@
       }, 2500);
     }
 
-    // Level 2: Moving target buttons
+    // Level 2: Moving target buttons - FIXED BOUNDS
     function startLevel2() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1194,25 +1227,37 @@
         const btn = document.createElement('button');
         btn.className = 'moving-button';
         
-        // Random starting position
-        const startX = Math.random() * (window.innerWidth - 150);
-        const startY = Math.random() * (window.innerHeight - 100) + 100;
+        const buttonWidth = 140;
+        const buttonHeight = 50;
+        const margin = 40;
+        
+        // Safe starting position
+        const maxX = Math.max(margin, window.innerWidth - buttonWidth - margin);
+        const maxY = Math.max(150, window.innerHeight - buttonHeight - margin);
+        
+        const startX = Math.random() * (maxX - margin) + margin;
+        const startY = Math.random() * (maxY - 150) + 150;
         
         btn.style.left = startX + 'px';
         btn.style.top = startY + 'px';
         
-        // Set random movement variables
-        btn.style.setProperty('--dx1', `${(Math.random() - 0.5) * 200}px`);
-        btn.style.setProperty('--dy1', `${(Math.random() - 0.5) * 200}px`);
-        btn.style.setProperty('--dx2', `${(Math.random() - 0.5) * 200}px`);
-        btn.style.setProperty('--dy2', `${(Math.random() - 0.5) * 200}px`);
-        btn.style.setProperty('--dx3', `${(Math.random() - 0.5) * 200}px`);
-        btn.style.setProperty('--dy3', `${(Math.random() - 0.5) * 200}px`);
+        // Set constrained random movement variables
+        const moveRange = 100;
+        btn.style.setProperty('--dx1', `${(Math.random() - 0.5) * moveRange}px`);
+        btn.style.setProperty('--dy1', `${(Math.random() - 0.5) * moveRange}px`);
+        btn.style.setProperty('--dx2', `${(Math.random() - 0.5) * moveRange}px`);
+        btn.style.setProperty('--dy2', `${(Math.random() - 0.5) * moveRange}px`);
+        btn.style.setProperty('--dx3', `${(Math.random() - 0.5) * moveRange}px`);
+        btn.style.setProperty('--dy3', `${(Math.random() - 0.5) * moveRange}px`);
         
         if (i === noPosition) {
           btn.textContent = '💔 No';
           btn.className += ' no-button';
-          btn.onclick = () => onLevel2NoFound();
+          btn.onclick = () => {
+            noAttempts++; // INCREMENT COUNTER
+            attemptCount.textContent = noAttempts;
+            onLevel2NoFound();
+          };
         } else {
           btn.textContent = '💚 Yes';
           btn.className += ' yes-button';
@@ -1255,7 +1300,7 @@
       }, 2500);
     }
 
-    // Level 3: Speed challenge - disappearing buttons
+    // Level 3: Speed challenge - FIXED BOUNDS
     function startLevel3() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1298,14 +1343,23 @@
         btn.style.position = 'fixed';
         btn.style.zIndex = '1850';
         
-        const x = Math.random() * (window.innerWidth - 150);
-        const y = Math.random() * (window.innerHeight - 100) + 100;
+        const buttonWidth = 140;
+        const buttonHeight = 50;
+        const margin = 20;
+        
+        const maxX = Math.max(0, window.innerWidth - buttonWidth - margin);
+        const maxY = Math.max(150, window.innerHeight - buttonHeight - margin);
+        
+        const x = Math.random() * maxX;
+        const y = Math.random() * (maxY - 150) + 150;
         
         btn.style.left = x + 'px';
         btn.style.top = y + 'px';
         
         btn.onclick = () => {
           foundCount++;
+          noAttempts++; // INCREMENT COUNTER
+          attemptCount.textContent = noAttempts;
           playErrorSound();
           createParticles(x + 60, y + 30, 15);
           btn.classList.add('fade-out');
@@ -1400,6 +1454,8 @@
       
       // Remove any level screens
       document.querySelectorAll('.level-screen').forEach(screen => screen.remove());
+      document.querySelectorAll('.moving-button').forEach(btn => btn.remove());
+      document.querySelectorAll('.speed-button').forEach(btn => btn.remove());
       
       const successScreen = document.createElement('div');
       successScreen.className = 'success-screen';
