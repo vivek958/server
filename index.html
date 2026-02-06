@@ -570,33 +570,6 @@
       100% { opacity: 0.3; }
     }
 
-    /* Attempt counter */
-    .attempt-counter {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 10px 20px;
-      border-radius: 15px;
-      font-weight: bold;
-      color: #ff1493;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 1900;
-      animation: slideInRight 0.5s ease;
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
     /* Level indicator */
     .level-indicator {
       position: fixed;
@@ -679,6 +652,47 @@
       }
     }
 
+    /* Error screen - console style */
+    .error-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: clamp(12px, 2.5vw, 14px);
+      padding: 20px;
+      z-index: 2000;
+      overflow: auto;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .error-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .error-title {
+      color: #f48771;
+      font-weight: bold;
+      font-size: clamp(14px, 3vw, 16px);
+      margin-bottom: 10px;
+    }
+
+    .error-message {
+      color: #ce9178;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .error-stack {
+      color: #858585;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
     /* Mobile optimizations */
     @media (max-width: 768px) {
       .container {
@@ -712,7 +726,6 @@
         padding: 10px 15px;
       }
 
-      .attempt-counter,
       .level-indicator {
         font-size: 14px;
         padding: 8px 15px;
@@ -761,11 +774,6 @@
     </div>
   </div>
   
-  <!-- Attempt counter -->
-  <div class="attempt-counter" id="attempt-counter" style="display: none;">
-    Attempts: <span id="attempt-count">0</span>/5
-  </div>
-
   <!-- Level indicator -->
   <div class="level-indicator" id="level-indicator" style="display: none;">
     Level: <span id="level-number">0</span>
@@ -790,15 +798,13 @@
     let audioInitialized = false;
     let mouseMoveEnabled = false;
     let shakeDetectionEnabled = false;
-    let evasionEnabled = true; // NEW: Track if evasion should be enabled
+    let evasionEnabled = true;
 
     const parallax = document.getElementById('parallax');
     const bgElements = ['💖', '💝', '💕', '💗', '💓', '💞', '💘', '🌸', '✨', '🎀', '🌹'];
     const bgColors = ['#ff69b4', '#ff1493', '#ff8da1', '#ffc0cb', '#ff69b4'];
     
     const noButton = document.getElementById('no-btn');
-    const attemptCounter = document.getElementById('attempt-counter');
-    const attemptCount = document.getElementById('attempt-count');
     const shakePrompt = document.getElementById('shake-prompt');
     const levelIndicator = document.getElementById('level-indicator');
     const levelNumber = document.getElementById('level-number');
@@ -933,9 +939,8 @@
       if (isReal) {
         document.getElementById('name-input').style.display = 'none';
         document.getElementById('valentine-question').style.display = 'block';
-        attemptCounter.style.display = 'block';
         levelIndicator.style.display = 'block';
-        evasionEnabled = true; // Enable evasion for Level 0
+        evasionEnabled = true;
         enableNoButtonEvasion();
         
         // Show shake prompt on mobile after 5 seconds
@@ -953,11 +958,9 @@
 
     // Enable No button evasion on hover/touch - ONLY WHEN evasionEnabled = true (Level 0)
     function enableNoButtonEvasion() {
-      // Mouse hover evasion - COUNT AS ATTEMPT (ONLY IN LEVEL 0)
       noButton.addEventListener('mouseenter', () => {
         if (evasionEnabled && noAttempts < 5) {
           noAttempts++;
-          attemptCount.textContent = noAttempts;
           moveNoButton();
           
           if (noAttempts >= 5) {
@@ -969,12 +972,10 @@
         }
       });
 
-      // Touch start evasion - COUNT AS ATTEMPT (ONLY IN LEVEL 0)
       noButton.addEventListener('touchstart', (e) => {
         if (evasionEnabled && noAttempts < 5) {
           e.preventDefault();
           noAttempts++;
-          attemptCount.textContent = noAttempts;
           moveNoButton();
           
           if (noAttempts >= 5) {
@@ -987,18 +988,27 @@
       });
     }
 
-    // Move No button to random position - STRICT 10PX BUFFER
+    // Move No button to random position - LIMITED AREA (FIX #1)
     function moveNoButton() {
       const buffer = 10;
       const btnRect = noButton.getBoundingClientRect();
       const buttonWidth = btnRect.width || 120;
       const buttonHeight = btnRect.height || 50;
       
-      const maxX = window.innerWidth - buttonWidth - buffer;
-      const maxY = window.innerHeight - buttonHeight - buffer;
+      // LIMITED MOVEMENT AREA - center 60% of screen
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const maxDistance = Math.min(window.innerWidth, window.innerHeight) * 0.3; // 30% of smaller dimension
       
-      const randomX = Math.max(buffer, Math.random() * maxX);
-      const randomY = Math.max(buffer + 80, Math.random() * (maxY - 80)); // Keep away from top
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * maxDistance;
+      
+      let randomX = centerX + Math.cos(angle) * distance - buttonWidth / 2;
+      let randomY = centerY + Math.sin(angle) * distance - buttonHeight / 2;
+      
+      // Ensure within screen bounds
+      randomX = Math.max(buffer, Math.min(randomX, window.innerWidth - buttonWidth - buffer));
+      randomY = Math.max(buffer + 80, Math.min(randomY, window.innerHeight - buttonHeight - buffer));
       
       noButton.style.position = 'fixed';
       noButton.style.left = randomX + 'px';
@@ -1019,14 +1029,16 @@
         showSuccess();
       } else {
         noAttempts++;
-        attemptCount.textContent = noAttempts;
-        playErrorSound();
         
-        if (noAttempts >= 5) {
-          // Start Level 1 after 5 attempts
+        // ERROR SOUND ONLY IN LEVEL 0 (FIX #3)
+        if (currentLevel === 0) {
+          playErrorSound();
+        }
+        
+        if (noAttempts >= 5 && currentLevel === 0) {
           removeAllSpawnedButtons();
           showTransitionScreen();
-        } else {
+        } else if (currentLevel === 0) {
           spawnNoButton();
         }
       }
@@ -1039,7 +1051,7 @@
       errorSound.play().catch(err => console.log('Error sound failed:', err));
     }
 
-    // Spawn floating No buttons - STRICT 10PX BUFFER
+    // Spawn floating No buttons
     function spawnNoButton() {
       const btn = document.createElement('button');
       btn.innerText = '💔 No';
@@ -1058,7 +1070,6 @@
       btn.style.left = x + 'px';
       btn.style.top = y + 'px';
       
-      // Random gradient for visual variety
       const gradients = [
         'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
         'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -1068,8 +1079,12 @@
       
       btn.onclick = () => {
         noAttempts++;
-        attemptCount.textContent = noAttempts;
-        playErrorSound();
+        
+        // ERROR SOUND ONLY IN LEVEL 0 (FIX #3)
+        if (currentLevel === 0) {
+          playErrorSound();
+        }
+        
         btn.classList.add('fade-out');
         createParticles(x + 60, y + 30, 10);
         setTimeout(() => btn.remove(), 500);
@@ -1083,7 +1098,6 @@
       document.body.appendChild(btn);
       createParticles(x + 60, y + 30, 8);
       
-      // Auto-remove after 5 seconds
       setTimeout(() => {
         if (document.body.contains(btn)) {
           btn.classList.add('fade-out');
@@ -1102,7 +1116,7 @@
 
     // Show transition screen between levels
     function showTransitionScreen() {
-      evasionEnabled = false; // DISABLE EVASION AFTER LEVEL 0
+      evasionEnabled = false;
       
       const transition = document.createElement('div');
       transition.className = 'buffering-screen';
@@ -1125,7 +1139,6 @@
 
     // Start specific level
     function startLevel(level) {
-      // Hide main content
       document.getElementById('main-content').style.display = 'none';
       shakePrompt.style.display = 'none';
 
@@ -1142,7 +1155,7 @@
       }
     }
 
-    // Level 1: Find the No among Yes buttons - NO EVASION
+    // Level 1: Find the No among Yes buttons - SAME COLOR (FIX #2)
     function startLevel1() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1162,20 +1175,17 @@
       const buttonGrid = document.createElement('div');
       buttonGrid.className = 'button-grid';
       
-      // Create 30-40 Yes buttons and 1 No button
       const totalButtons = 35;
       const noPosition = Math.floor(Math.random() * totalButtons);
       
       for (let i = 0; i < totalButtons; i++) {
         const btn = document.createElement('button');
-        btn.className = 'grid-button yes-button';
+        btn.className = 'grid-button yes-button'; // ALL SAME COLOR (FIX #2)
         
         if (i === noPosition) {
           btn.textContent = '💔 No';
-          btn.className = 'grid-button no-button';
           btn.onclick = () => {
             noAttempts++;
-            attemptCount.textContent = noAttempts;
             onLevel1NoFound();
           };
         } else {
@@ -1197,7 +1207,7 @@
 
     // Level 1 No button found
     function onLevel1NoFound() {
-      playErrorSound();
+      // NO ERROR SOUND (FIX #3)
       createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
       
       const feedback = document.createElement('div');
@@ -1221,7 +1231,7 @@
       }, 2500);
     }
 
-    // Level 2: Moving target buttons - STRICT 10PX BUFFER
+    // Level 2: Moving target buttons
     function startLevel2() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1243,7 +1253,6 @@
       levelScreen.appendChild(content);
       document.body.appendChild(levelScreen);
       
-      // Create 10 moving buttons
       const numButtons = 10;
       const noPosition = Math.floor(Math.random() * numButtons);
       
@@ -1264,7 +1273,6 @@
         btn.style.left = startX + 'px';
         btn.style.top = startY + 'px';
         
-        // Constrained movement - stay within bounds
         const moveRange = 60;
         btn.style.setProperty('--dx1', `${(Math.random() - 0.5) * moveRange}px`);
         btn.style.setProperty('--dy1', `${(Math.random() - 0.5) * moveRange}px`);
@@ -1278,7 +1286,6 @@
           btn.className += ' no-button';
           btn.onclick = () => {
             noAttempts++;
-            attemptCount.textContent = noAttempts;
             onLevel2NoFound();
           };
         } else {
@@ -1291,12 +1298,10 @@
       }
     }
 
-    // Level 2 No button found
+    // Level 2 No button found - NO ERROR SOUND (FIX #4)
     function onLevel2NoFound() {
-      playErrorSound();
       createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
       
-      // Remove all moving buttons
       document.querySelectorAll('.moving-button').forEach(btn => {
         btn.classList.add('fade-out');
         setTimeout(() => btn.remove(), 500);
@@ -1323,7 +1328,7 @@
       }, 2500);
     }
 
-    // Level 3: Speed challenge - STRICT 10PX BUFFER
+    // Level 3: Speed challenge
     function startLevel3() {
       const levelScreen = document.createElement('div');
       levelScreen.className = 'level-screen';
@@ -1382,8 +1387,6 @@
         btn.onclick = () => {
           foundCount++;
           noAttempts++;
-          attemptCount.textContent = noAttempts;
-          playErrorSound();
           createParticles(x + 60, y + 30, 15);
           btn.classList.add('fade-out');
           setTimeout(() => btn.remove(), 500);
@@ -1397,7 +1400,6 @@
         
         document.body.appendChild(btn);
         
-        // Button disappears after 2 seconds
         setTimeout(() => {
           if (document.body.contains(btn)) {
             btn.classList.add('fade-out');
@@ -1406,7 +1408,6 @@
         }, 2000);
       }
       
-      // Spawn buttons continuously
       const spawnInterval = setInterval(() => {
         if (foundCount >= targetCount) {
           clearInterval(spawnInterval);
@@ -1415,15 +1416,11 @@
         }
       }, 1000);
       
-      // Initial spawn
       spawnSpeedButton();
     }
 
-    // Level 3 complete
+    // Level 3 complete - SHOW ERROR SCREEN (FIX #5)
     function onLevel3Complete() {
-      playErrorSound();
-      
-      // Remove all speed buttons
       document.querySelectorAll('.speed-button').forEach(btn => {
         btn.classList.add('fade-out');
         setTimeout(() => btn.remove(), 500);
@@ -1443,9 +1440,47 @@
         setTimeout(() => {
           feedback.remove();
           document.getElementById('level3-screen')?.remove();
-          showFinalChoice();
+          showErrorScreen(); // SHOW ERROR SCREEN (FIX #5)
         }, 500);
       }, 3000);
+    }
+
+    // Show error screen - console style (FIX #5)
+    function showErrorScreen() {
+      const errorScreen = document.createElement('div');
+      errorScreen.className = 'error-screen';
+      errorScreen.innerHTML = `
+        <div class="error-content">
+          <div class="error-title">Uncaught Error: Redisplaying Question</div>
+          <div class="error-message">    at valentineQuestion (game.js:347:12)</div>
+          <div class="error-stack">    at processLevels (game.js:289:5)
+    at Level3.complete (game.js:156:8)
+    at eventHandler (game.js:89:14)
+    at HTMLButtonElement.onclick (index.html:1)
+
+Stack trace:
+  valentineQuestion@game.js:347:12
+  processLevels@game.js:289:5
+  Level3.prototype.complete@game.js:156:8
+  eventHandler@game.js:89:14
+  onclick@index.html:1
+
+Caused by: TooManyNoAttemptsException
+  All defensive mechanisms exhausted
+  Fallback to primary question required
+  
+Resolving... 😅</div>
+        </div>
+      `;
+      document.body.appendChild(errorScreen);
+      
+      setTimeout(() => {
+        errorScreen.classList.add('fade-out');
+        setTimeout(() => {
+          errorScreen.remove();
+          showFinalChoice();
+        }, 500);
+      }, 4000);
     }
 
     // Show final choice - only Yes buttons
@@ -1467,15 +1502,13 @@
       launchConfetti();
     }
 
-    // Show success screen
+    // Show success screen - REMOVED LEVEL COMPLETION TEXT (FIX #6)
     function showSuccess() {
       document.getElementById('valentine-question').style.display = 'none';
       document.getElementById('main-content').style.display = 'none';
-      attemptCounter.style.display = 'none';
       shakePrompt.style.display = 'none';
       levelIndicator.style.display = 'none';
       
-      // Remove any level screens
       document.querySelectorAll('.level-screen').forEach(screen => screen.remove());
       document.querySelectorAll('.moving-button').forEach(btn => btn.remove());
       document.querySelectorAll('.speed-button').forEach(btn => btn.remove());
@@ -1489,22 +1522,18 @@
         <p style="font-size: 1.5em; color: #ff1493; font-weight: bold;">Being My Valentine! 💝</p>
         <img src="gif.gif" alt="Success" class="success-gif" />
         <p style="margin-top: 20px; font-size: 0.9em;">Thank you for making my day special! ✨</p>
-        ${currentLevel > 0 ? `<p style="margin-top: 10px; font-size: 0.8em; color: #666;">You completed ${currentLevel} level${currentLevel > 1 ? 's' : ''}! 🏆</p>` : ''}
       `;
       
       document.body.appendChild(successScreen);
       
-      // Play success sound
       const successSound = new Audio('success.mp3');
       successSound.volume = 0.8;
       successSound.play().catch(err => console.log('Success sound failed:', err));
       
-      // Stop background music
       backgroundMusic.pause();
       isMusicPlaying = false;
       document.getElementById('music-btn').textContent = '🔇';
       
-      // Epic confetti celebration
       launchConfetti();
       setTimeout(() => launchConfetti(), 1000);
       setTimeout(() => launchConfetti(), 2000);
@@ -1547,7 +1576,6 @@
               const deltaY = Math.abs(acc.y - lastY);
               const deltaZ = Math.abs(acc.z - lastZ);
               
-              // Detect shake
               if ((deltaX + deltaY + deltaZ) / deltaTime * 10000 > 150) {
                 onShakeDetected();
               }
@@ -1568,12 +1596,10 @@
       if (noAttempts > 0 && noAttempts < 5 && evasionEnabled) {
         createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
         
-        // Spawn multiple No buttons
         for (let i = 0; i < 3; i++) {
           setTimeout(() => spawnNoButton(), i * 200);
         }
         
-        // Show feedback
         const feedback = document.createElement('div');
         feedback.style.cssText = `
           position: fixed;
