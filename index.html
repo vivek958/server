@@ -2,421 +2,1123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interactive Valentine Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ff69b4" />
+  <title>💝 Interactive Valentine Game</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
   <style>
-    /* Base styles */
+    /* Modern CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Base styles with improved mobile support */
     body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      background: linear-gradient(45deg, #ffe6f0, #ffb6c1);
-      font-family: Arial, sans-serif;
+      min-height: -webkit-fill-available;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #ffd36e 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    /* Parallax background */
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Floating hearts background */
     .parallax {
       position: fixed;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: -1;
+      z-index: 0;
+      overflow: hidden;
     }
+
     .bg-element {
       position: absolute;
-      font-size: 24px;
-      animation: float 15s infinite linear;
-      opacity: 0.6;
+      font-size: clamp(20px, 4vw, 32px);
+      animation: float 12s infinite ease-in-out;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.5));
+      will-change: transform;
     }
+
     @keyframes float {
-      0% { transform: translateY(100vh) rotate(0deg); }
-      100% { transform: translateY(-100px) rotate(360deg); }
+      0% { 
+        transform: translateY(100vh) rotate(0deg) scale(0.8);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% { 
+        transform: translateY(-120px) rotate(720deg) scale(1.2);
+        opacity: 0;
+      }
     }
-    /* Main container */
+
+    /* Main container with glassmorphism */
     .container {
       max-width: 600px;
       width: 90%;
       margin: 20px;
-      padding: 20px;
+      padding: clamp(20px, 5vw, 40px);
       text-align: center;
-      background: rgba(255,255,255,0.9);
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      z-index: 1;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 25px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
+                  0 0 100px rgba(255, 105, 180, 0.2);
+      z-index: 10;
+      position: relative;
+      animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
     }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    h1, h2 {
+      color: #ff1493;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+
+    h2 {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Enhanced input field */
     input {
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid #ffb6c1;
-      border-radius: 5px;
-      margin: 10px;
-      width: 80%;
+      padding: 15px 20px;
+      font-size: clamp(14px, 3vw, 18px);
+      border: 3px solid #ff69b4;
+      border-radius: 15px;
+      margin: 15px 0;
+      width: 100%;
+      max-width: 400px;
+      transition: all 0.3s ease;
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
     }
+
+    input:focus {
+      border-color: #ff1493;
+      box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
+      transform: scale(1.02);
+    }
+
+    /* Enhanced buttons */
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ff69b4;
+      padding: 15px 30px;
+      font-size: clamp(14px, 3vw, 18px);
+      background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
       border: none;
-      border-radius: 5px;
+      border-radius: 15px;
       color: white;
       cursor: pointer;
       margin: 10px;
-      transition: transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+      font-weight: bold;
+      min-width: 120px;
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
     button:hover {
-      transform: scale(1.1);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(255, 105, 180, 0.6);
     }
-    /* Modal & overlay for confirmation */
+
+    button:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    /* Special styling for Yes button */
+    .yes-button {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+    }
+
+    .yes-button:hover {
+      box-shadow: 0 10px 25px rgba(56, 239, 125, 0.6);
+    }
+
+    /* Evasive No button */
+    .no-button {
+      background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+      transition: all 0.2s ease;
+    }
+
+    /* Modal styling with blur */
     .modal {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%) scale(0.8);
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      padding: clamp(20px, 5vw, 40px);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       text-align: center;
+      max-width: 90%;
+      animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
+
+    @keyframes modalIn {
+      to {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
     .overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       z-index: 900;
+      animation: fadeIn 0.3s ease;
     }
-    /* Loading screen */
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Loading screen with progress */
     .loading-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255,182,193,0.9);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 1100;
+      z-index: 2000;
+      animation: fadeOut 0.5s ease 2s forwards;
     }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
     .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #ff1493;
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid white;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Buffering animation (mimicking YouTube) */
+
+    .loading-text {
+      color: white;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      margin-top: 20px;
+      font-weight: bold;
+      animation: textPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes textPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 80%;
+      max-width: 400px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      margin-top: 30px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38ef7d, #11998e);
+      border-radius: 10px;
+      animation: progressLoad 2s ease forwards;
+    }
+
+    @keyframes progressLoad {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    /* Buffering screen */
     .buffering-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 1250;
+      z-index: 1500;
       color: white;
-      font-size: 1.2em;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      animation: fadeIn 0.3s ease;
     }
+
     .buffering-spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid rgba(255, 255, 255, 0.3);
-      border-top: 6px solid white;
+      width: 70px;
+      height: 70px;
+      border: 8px solid rgba(255, 255, 255, 0.2);
+      border-top: 8px solid white;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 10px;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
     }
-    /* Error overlay */
+
+    /* Error overlay with shake animation */
     .error-text {
-      color: red;
+      color: #ff1744;
       font-weight: bold;
-      font-size: 1.5em;
+      font-size: clamp(1.2rem, 5vw, 2rem);
       text-align: center;
       background: white;
-      padding: 20px;
-      border-radius: 10px;
+      padding: clamp(20px, 5vw, 40px);
+      border-radius: 20px;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 1200;
+      z-index: 1600;
+      box-shadow: 0 20px 60px rgba(255, 23, 68, 0.4);
+      animation: shake 0.5s ease, fadeIn 0.3s ease;
+      border: 3px solid #ff1744;
+      max-width: 90%;
     }
-    /* Success screen */
+
+    @keyframes shake {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      25% { transform: translate(-48%, -50%) rotate(-5deg); }
+      75% { transform: translate(-52%, -50%) rotate(5deg); }
+    }
+
+    /* Success screen enhanced */
     .success-screen {
       text-align: center;
-      font-size: 1.5em;
+      font-size: clamp(1rem, 4vw, 1.5rem);
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255,255,255,0.95);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      z-index: 1300;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      padding: clamp(30px, 6vw, 50px);
+      border-radius: 25px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+      z-index: 1700;
+      max-width: 90%;
+      animation: successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 3px solid #38ef7d;
     }
+
+    @keyframes successPop {
+      0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
     .success-gif {
-      max-width: 200px;
+      max-width: 80%;
+      max-height: 300px;
       margin-top: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
-    /* Audio toggle control */
+
+    /* Audio controls with better mobile support */
     #audio-controls {
       position: fixed;
       bottom: 20px;
       left: 20px;
       z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    #audio-controls:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    #audio-controls button {
+      background: transparent;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+      font-size: 24px;
+      min-width: auto;
+    }
+
+    /* Spawned No buttons with random colors */
+    .spawned-no {
+      position: fixed !important;
+      z-index: 1400 !important;
+      animation: spawnIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes spawnIn {
+      from {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    /* Fade transitions */
+    .fade-out {
+      animation: fadeOutAnim 0.5s ease forwards;
+    }
+
+    @keyframes fadeOutAnim {
+      to {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        margin: 10px;
+      }
+
+      button {
+        padding: 12px 24px;
+        margin: 8px;
+        min-width: 100px;
+      }
+
+      #audio-controls {
+        bottom: 15px;
+        left: 15px;
+        width: 50px;
+        height: 50px;
+      }
+
+      #audio-controls button {
+        font-size: 20px;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Particle effect container */
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(circle, #ff69b4, transparent);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particleFade 2s ease-out forwards;
+    }
+
+    @keyframes particleFade {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0);
+      }
+    }
+
+    /* Attempt counter */
+    .attempt-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      color: #ff1493;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      animation: slideInRight 0.5s ease;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Shake device prompt */
+    .shake-prompt {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      border-radius: 15px;
+      font-size: 14px;
+      color: #ff1493;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
     }
   </style>
 </head>
 <body>
   <!-- Parallax background -->
   <div class="parallax" id="parallax"></div>
-  <!-- (Optional) Confetti container -->
-  <div id="confetti-container"></div>
-  <!-- Initial loading screen -->
+  
+  <!-- Particle effect container -->
+  <div id="particles"></div>
+  
+  <!-- Initial loading screen with progress -->
   <div class="loading-screen" id="initial-loading">
     <div class="spinner"></div>
+    <div class="loading-text">Loading Valentine Magic...</div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
   </div>
+  
   <!-- Main content container -->
   <div class="container" id="main-content" style="display: none;">
     <div id="name-input">
-      <h2>Please Enter Your Name</h2>
-      <input type="text" id="name" required />
-      <button onclick="submitName()">Submit</button>
+      <h2>💖 Please Enter Your Name 💖</h2>
+      <input type="text" id="name" placeholder="Your name here..." required />
+      <button onclick="submitName()">✨ Submit</button>
     </div>
     <div id="valentine-question" style="display: none;">
-      <h1>Will You Be My Valentine?</h1>
-      <button onclick="answer(true)">Yes</button>
-      <button onclick="answer(false)">No</button>
+      <h1>💝 Will You Be My Valentine? 💝</h1>
+      <div id="button-container">
+        <button class="yes-button" onclick="answer(true)">💚 Yes</button>
+        <button class="no-button" id="no-btn" onclick="answer(false)">💔 No</button>
+      </div>
     </div>
   </div>
+  
+  <!-- Attempt counter -->
+  <div class="attempt-counter" id="attempt-counter" style="display: none;">
+    Attempts: <span id="attempt-count">0</span>
+  </div>
+  
+  <!-- Shake prompt for mobile -->
+  <div class="shake-prompt" id="shake-prompt" style="display: none;">
+    📱 Shake your device if stuck!
+  </div>
+  
   <!-- Audio toggle button -->
   <div id="audio-controls">
-    <button onclick="toggleMusic()">🔊</button>
+    <button onclick="toggleMusic()" id="music-btn">🔊</button>
   </div>
 
   <script>
-    // Instruct the user to interact with the page to enable audio.
-    alert("Hi! Please tap anywhere (or the volume button) to enable audio before continuing.");
-
+    // Configuration and state
     let userName = '';
-    // Global counter for "No" attempts (original + spawned buttons)
-    let noAttempts = -6;
+    let noAttempts = 0;
+    let isMusicPlaying = false;
+    let audioInitialized = false;
+    let mouseMoveEnabled = false;
+    let shakeDetectionEnabled = false;
 
     const parallax = document.getElementById('parallax');
-    const bgElements = ['💖', '🌸', '✨', '💝', '🎀', '💕'];
-    const bgColors = ['#ff69b4', '#ff1493', '#ff69b4', '#ff8da1', '#ffc0cb'];
+    const bgElements = ['💖', '💝', '💕', '💗', '💓', '💞', '💘', '🌸', '✨', '🎀', '🌹'];
+    const bgColors = ['#ff69b4', '#ff1493', '#ff8da1', '#ffc0cb', '#ff69b4'];
+    
+    const noButton = document.getElementById('no-btn');
+    const attemptCounter = document.getElementById('attempt-counter');
+    const attemptCount = document.getElementById('attempt-count');
+    const shakePrompt = document.getElementById('shake-prompt');
 
-    // Background music (do not play immediately)
-    let isMusicPlaying = false;
-    const backgroundMusic = new Audio();
-    backgroundMusic.src = "bg.mp3"; // Use a relative path accessible via your server
+    // Audio setup
+    const backgroundMusic = new Audio('bg.mp3');
     backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.5;
 
-    // This flag ensures the audio is only initialized once.
-    let audioInitialized = false;
+    // Initialize audio on first interaction
     function initAudio() {
       if (!audioInitialized) {
         backgroundMusic.play().then(() => {
           isMusicPlaying = true;
-          console.log("Background music started.");
-        }).catch(err => {
-          console.log("Audio play failed:", err);
-        });
+          document.getElementById('music-btn').textContent = '🔊';
+        }).catch(err => console.log('Audio play failed:', err));
         audioInitialized = true;
-        // Remove the listener after first interaction.
-        document.body.removeEventListener("click", initAudio);
+        document.body.removeEventListener('click', initAudio);
+        document.body.removeEventListener('touchstart', initAudio);
       }
     }
-    // Wait for any user interaction before starting the audio.
-    document.body.addEventListener("click", initAudio);
+    
+    document.body.addEventListener('click', initAudio);
+    document.body.addEventListener('touchstart', initAudio);
 
-    // Create parallax background elements
-    for (let i = 0; i < 30; i++) {
+    // Create enhanced parallax background
+    for (let i = 0; i < 40; i++) {
       const el = document.createElement('div');
       el.className = 'bg-element';
       el.style.left = `${Math.random() * 100}%`;
       el.style.top = `${Math.random() * 100}%`;
-      el.style.animationDelay = `${Math.random() * 15}s`;
+      el.style.animationDelay = `${Math.random() * 12}s`;
+      el.style.animationDuration = `${8 + Math.random() * 8}s`;
       el.style.color = bgColors[Math.floor(Math.random() * bgColors.length)];
       el.innerText = bgElements[Math.floor(Math.random() * bgElements.length)];
       parallax.appendChild(el);
     }
 
-    // Hide initial loading screen after 2 seconds and show main content.
+    // Hide loading screen and show main content
     setTimeout(() => {
       document.getElementById('initial-loading').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
-    }, 2000);
+    }, 2500);
 
-    // Handle name submission and confirmation.
+    // Create particles effect
+    function createParticles(x, y, count = 15) {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
+        particle.style.setProperty('--ty', `${(Math.random() - 0.5) * 200}px`);
+        container.appendChild(particle);
+        setTimeout(() => particle.remove(), 2000);
+      }
+    }
+
+    // Enhanced confetti
+    function launchConfetti() {
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const interval = setInterval(() => {
+        if (Date.now() > end) {
+          clearInterval(interval);
+          return;
+        }
+
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ff8da1']
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ff8da1']
+        });
+      }, 50);
+    }
+
+    // Name submission
     function submitName() {
       const nameInput = document.getElementById('name');
       if (nameInput.value.trim() === '') {
-        alert('Please enter your name!');
+        nameInput.style.animation = 'shake 0.5s ease';
+        setTimeout(() => nameInput.style.animation = '', 500);
+        alert('💖 Please enter your name!');
         return;
       }
-      userName = nameInput.value;
-      
-      // Create confirmation modal.
+      userName = nameInput.value.trim();
+      createConfirmModal();
+    }
+
+    // Create confirmation modal
+    function createConfirmModal() {
       const modal = document.createElement('div');
       modal.className = 'modal';
       modal.innerHTML = `
-        <h3>Did you enter your real name?</h3>
-        <button onclick="confirmName(true)">Yes</button>
-        <button onclick="confirmName(false)">No</button>
+        <h3>💭 Just checking...</h3>
+        <p>Is "${userName}" your real name?</p>
+        <button onclick="confirmName(true)" class="yes-button">✅ Yes</button>
+        <button onclick="confirmName(false)" class="no-button">❌ No</button>
       `;
       const overlay = document.createElement('div');
       overlay.className = 'overlay';
+      overlay.onclick = () => confirmName(false);
       document.body.appendChild(overlay);
       document.body.appendChild(modal);
     }
 
+    // Confirm name
     function confirmName(isReal) {
-      document.querySelector('.modal').remove();
-      document.querySelector('.overlay').remove();
+      const modal = document.querySelector('.modal');
+      const overlay = document.querySelector('.overlay');
+      
+      if (modal) {
+        modal.classList.add('fade-out');
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+          modal?.remove();
+          overlay?.remove();
+        }, 500);
+      }
+
       if (isReal) {
         document.getElementById('name-input').style.display = 'none';
         document.getElementById('valentine-question').style.display = 'block';
+        attemptCounter.style.display = 'block';
+        enableNoButtonEvasion();
+        
+        // Show shake prompt on mobile after 5 seconds
+        if (window.innerWidth <= 768) {
+          setTimeout(() => {
+            shakePrompt.style.display = 'block';
+            enableShakeDetection();
+          }, 5000);
+        }
       } else {
         document.getElementById('name').value = '';
+        document.getElementById('name').focus();
       }
     }
 
-    // Called when the original question's button is clicked.
+    // Enable No button evasion on hover/touch
+    function enableNoButtonEvasion() {
+      // Mouse hover evasion
+      noButton.addEventListener('mouseenter', () => {
+        if (noAttempts < 3) {
+          moveNoButton();
+        }
+      });
+
+      // Touch move evasion
+      noButton.addEventListener('touchstart', (e) => {
+        if (noAttempts < 3) {
+          e.preventDefault();
+          moveNoButton();
+        }
+      });
+    }
+
+    // Move No button to random position
+    function moveNoButton() {
+      const maxX = window.innerWidth - noButton.offsetWidth - 40;
+      const maxY = window.innerHeight - noButton.offsetHeight - 40;
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+      
+      noButton.style.position = 'fixed';
+      noButton.style.left = randomX + 'px';
+      noButton.style.top = randomY + 'px';
+      noButton.style.transform = 'scale(0.9)';
+      
+      setTimeout(() => {
+        noButton.style.transform = 'scale(1)';
+      }, 200);
+
+      createParticles(randomX + noButton.offsetWidth / 2, randomY + noButton.offsetHeight / 2, 8);
+    }
+
+    // Answer handler
     function answer(isYes) {
       if (isYes) {
         showSuccess();
       } else {
         noAttempts++;
+        attemptCount.textContent = noAttempts;
         playErrorSound();
-        spawnNoButton();
+        
         if (noAttempts >= 3) {
-          // After the third "No" click, show buffering animation first.
           showBufferingAnimation();
+        } else {
+          spawnNoButton();
         }
       }
     }
 
-    // Play the error sound.
+    // Play error sound
     function playErrorSound() {
-      const errorSound = new Audio("error.mp3"); // Use a relative path accessible via your server
-      errorSound.play().catch(err => console.log("Error sound failed:", err));
+      const errorSound = new Audio('error.mp3');
+      errorSound.volume = 0.7;
+      errorSound.play().catch(err => console.log('Error sound failed:', err));
     }
 
-    // Spawn a "No" button with a high z-index so it appears on top.
+    // Spawn floating No buttons
     function spawnNoButton() {
-      const noButton = document.createElement('button');
-      noButton.innerText = 'No';
-      noButton.style.position = 'absolute';
-      noButton.style.left = `${Math.random() * 80 + 10}%`;
-      noButton.style.top = `${Math.random() * 80 + 10}%`;
-      noButton.style.zIndex = 1500;  // ensure it appears above the main container
-      noButton.onclick = () => {
+      const btn = document.createElement('button');
+      btn.innerText = '💔 No';
+      btn.className = 'spawned-no no-button';
+      
+      const x = Math.random() * (window.innerWidth - 120);
+      const y = Math.random() * (window.innerHeight - 60);
+      
+      btn.style.left = x + 'px';
+      btn.style.top = y + 'px';
+      
+      // Random gradient for visual variety
+      const gradients = [
+        'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      ];
+      btn.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+      
+      btn.onclick = () => {
         noAttempts++;
+        attemptCount.textContent = noAttempts;
         playErrorSound();
-        noButton.remove();
+        btn.classList.add('fade-out');
+        createParticles(x + 60, y + 30, 10);
+        setTimeout(() => btn.remove(), 500);
+        
         if (noAttempts >= 3) {
+          removeAllSpawnedButtons();
           showBufferingAnimation();
         }
       };
-      document.body.appendChild(noButton);
-      // Remove the spawned button after 4 seconds if not clicked.
+      
+      document.body.appendChild(btn);
+      createParticles(x + 60, y + 30, 8);
+      
+      // Auto-remove after 5 seconds
       setTimeout(() => {
-        noButton.remove();
-      }, 4000);
+        if (document.body.contains(btn)) {
+          btn.classList.add('fade-out');
+          setTimeout(() => btn.remove(), 500);
+        }
+      }, 5000);
     }
 
-    // Show buffering animation (like YouTube) then (after 2 seconds) play error sound,
-    // display error overlay for 3 seconds, and finally re-display the question with updated options.
-    function showBufferingAnimation() {
-      // Remove any remaining spawned "No" buttons.
-      const spawned = document.querySelectorAll('button[style*="position: absolute"]');
-      spawned.forEach(btn => btn.remove());
+    // Remove all spawned buttons
+    function removeAllSpawnedButtons() {
+      document.querySelectorAll('.spawned-no').forEach(btn => {
+        btn.classList.add('fade-out');
+        setTimeout(() => btn.remove(), 500);
+      });
+    }
 
+    // Show buffering animation
+    function showBufferingAnimation() {
+      removeAllSpawnedButtons();
+      
       const bufferingOverlay = document.createElement('div');
       bufferingOverlay.className = 'buffering-screen';
       bufferingOverlay.innerHTML = `
         <div class="buffering-spinner"></div>
-        <div>Loading...</div>
+        <div>🔄 Processing your response...</div>
       `;
       document.body.appendChild(bufferingOverlay);
       
-      // After 2 seconds, remove buffering overlay, play error sound, then show error overlay.
       setTimeout(() => {
-        bufferingOverlay.remove();
-        playErrorSound();
-        showErrorOverlay();
-      }, 2000);
+        bufferingOverlay.classList.add('fade-out');
+        setTimeout(() => {
+          bufferingOverlay.remove();
+          playErrorSound();
+          showErrorOverlay();
+        }, 500);
+      }, 2500);
     }
 
-    // Show error overlay then, after 3 seconds, remove it and re-display the question with updated options.
+    // Show error overlay
     function showErrorOverlay() {
       const errorOverlay = document.createElement('div');
       errorOverlay.className = 'error-text';
-      errorOverlay.innerHTML = `<p>Uncaught Error Occurred: Re-Displaying Question</p>`;
+      errorOverlay.innerHTML = `
+        <p>⚠️ System Error Detected</p>
+        <p style="font-size: 0.8em; margin-top: 10px;">Recalibrating options...</p>
+      `;
       document.body.appendChild(errorOverlay);
+      
       setTimeout(() => {
-        errorOverlay.remove();
-        noAttempts = 0;
-        // Re-display the Valentine question and update the buttons.
-        const qDiv = document.getElementById('valentine-question');
-        qDiv.style.display = 'block';
-        const btns = qDiv.getElementsByTagName('button');
-        btns[0].innerText = "Yes";
-        btns[1].innerText = "YES!!";
-        btns[0].setAttribute("onclick", "answer(true)");
-        btns[1].setAttribute("onclick", "answer(true)");
+        errorOverlay.classList.add('fade-out');
+        setTimeout(() => {
+          errorOverlay.remove();
+          resetQuestion();
+        }, 500);
       }, 3000);
     }
 
-    // Show success screen and stop background music.
+    // Reset question with only Yes options
+    function resetQuestion() {
+      noAttempts = 0;
+      attemptCount.textContent = '0';
+      
+      const qDiv = document.getElementById('valentine-question');
+      const btnContainer = document.getElementById('button-container');
+      btnContainer.innerHTML = `
+        <button class="yes-button" onclick="answer(true)">💚 Yes!</button>
+        <button class="yes-button" onclick="answer(true)">💚 Absolutely Yes!</button>
+      `;
+      
+      qDiv.style.display = 'block';
+      launchConfetti();
+    }
+
+    // Show success screen
     function showSuccess() {
       document.getElementById('valentine-question').style.display = 'none';
+      attemptCounter.style.display = 'none';
+      shakePrompt.style.display = 'none';
+      
       const successScreen = document.createElement('div');
       successScreen.className = 'success-screen';
       successScreen.innerHTML = `
-        <h1>Success!</h1>
-        <p>Congratulations on being the lucky duck who just won a chance to be my Valentine!!</p>
+        <h1>🎉 Success! 🎉</h1>
+        <p>Congratulations, ${userName}!</p>
+        <p>You've just won the ultimate prize:</p>
+        <p style="font-size: 1.5em; color: #ff1493; font-weight: bold;">Being My Valentine! 💝</p>
         <img src="gif.gif" alt="Success" class="success-gif" />
+        <p style="margin-top: 20px; font-size: 0.9em;">Thank you for making my day special! ✨</p>
       `;
-      const Music = new Audio();
-      Music.src = "success.mp3"; // Use a relative path accessible via your server
+      
       document.body.appendChild(successScreen);
-      Music.play().catch(err => console.log("Success sound failed:", err));
-      // Stop background music permanently.
+      
+      // Play success sound
+      const successSound = new Audio('success.mp3');
+      successSound.volume = 0.8;
+      successSound.play().catch(err => console.log('Success sound failed:', err));
+      
+      // Stop background music
       backgroundMusic.pause();
+      isMusicPlaying = false;
+      document.getElementById('music-btn').textContent = '🔇';
+      
+      // Epic confetti celebration
+      launchConfetti();
+      setTimeout(() => launchConfetti(), 1000);
+      setTimeout(() => launchConfetti(), 2000);
     }
 
-    // Toggle background music.
+    // Toggle background music
     function toggleMusic() {
       if (isMusicPlaying) {
         backgroundMusic.pause();
         isMusicPlaying = false;
+        document.getElementById('music-btn').textContent = '🔇';
       } else {
         backgroundMusic.play().then(() => {
           isMusicPlaying = true;
-        }).catch(err => console.log("Toggle music play failed:", err));
+          document.getElementById('music-btn').textContent = '🔊';
+        }).catch(err => {
+          console.log('Toggle music failed:', err);
+          alert('Please interact with the page first to enable audio!');
+        });
       }
     }
+
+    // Shake detection for mobile devices
+    function enableShakeDetection() {
+      if (!shakeDetectionEnabled && window.DeviceMotionEvent) {
+        let lastX, lastY, lastZ;
+        let lastTime = Date.now();
+        
+        window.addEventListener('devicemotion', (e) => {
+          const acc = e.accelerationIncludingGravity;
+          const currentTime = Date.now();
+          
+          if ((currentTime - lastTime) > 100) {
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            if (lastX !== undefined) {
+              const deltaX = Math.abs(acc.x - lastX);
+              const deltaY = Math.abs(acc.y - lastY);
+              const deltaZ = Math.abs(acc.z - lastZ);
+              
+              // Detect shake
+              if ((deltaX + deltaY + deltaZ) / deltaTime * 10000 > 150) {
+                onShakeDetected();
+              }
+            }
+            
+            lastX = acc.x;
+            lastY = acc.y;
+            lastZ = acc.z;
+          }
+        });
+        
+        shakeDetectionEnabled = true;
+      }
+    }
+
+    // Handle shake event
+    function onShakeDetected() {
+      if (noAttempts > 0 && noAttempts < 3) {
+        createParticles(window.innerWidth / 2, window.innerHeight / 2, 30);
+        
+        // Spawn multiple No buttons
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => spawnNoButton(), i * 200);
+        }
+        
+        // Show feedback
+        const feedback = document.createElement('div');
+        feedback.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(255, 255, 255, 0.95);
+          padding: 20px 40px;
+          border-radius: 15px;
+          font-size: 1.2em;
+          color: #ff1493;
+          font-weight: bold;
+          z-index: 1800;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          animation: successPop 0.5s ease;
+        `;
+        feedback.textContent = '📱 Shake detected! More buttons spawned!';
+        document.body.appendChild(feedback);
+        
+        setTimeout(() => {
+          feedback.classList.add('fade-out');
+          setTimeout(() => feedback.remove(), 500);
+        }, 2000);
+      }
+    }
+
+    // Prevent zoom on double tap (iOS)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    // Add click particle effects to all buttons
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') {
+        createParticles(e.clientX, e.clientY, 10);
+      }
+    });
+
+    // Console easter egg
+    console.log('%c💝 Happy Valentine\'s Day! 💝', 'font-size: 24px; color: #ff1493; font-weight: bold;');
+    console.log('%cMade with ❤️ for someone special', 'font-size: 16px; color: #ff69b4;');
   </script>
 </body>
 </html>
